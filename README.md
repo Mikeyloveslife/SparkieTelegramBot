@@ -9,9 +9,9 @@ Currently supported models:
 All custom settings of your users being saved to sqlite3 database and fetched every time they perform an action in the bot.
 
 Currently supported languages:
-**- English;**
-- Ukrainian;
-- Russian.
+- **English;**
+- **Ukrainian;**
+- **Russian.**
 
 # How to get started ?
 1. First of all create your own telegram bot, save its api key as an environment variable.
