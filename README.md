@@ -17,5 +17,6 @@ Currently supported languages:
 1. First of all create your own telegram bot, save its api key as an environment variable.
 2. Open create_bot.py file and replace "telegramBot_api" with the name of your environment variable instance.
 3. To interact with the models we need openai api key, go and get it on https://platform.openai.com/ and save as environment variable too.
-4. Then open each file in handlers folder and replace "OPENAI_API_KEY" with your the name of your environment variable from step 3.
+4. Then open each file in handlers folder and replace "OPENAI_API_KEY" with your the name of your environment 
+   variable from step 3.
 5. Run your code and use it.
