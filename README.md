@@ -9,7 +9,7 @@ Currently supported models:
 All custom settings of your users being saved to sqlite3 database and fetched every time they perform an action in the bot.
 
 Currently supported languages:
-- English;
+**- English;**
 - Ukrainian;
 - Russian.
 
