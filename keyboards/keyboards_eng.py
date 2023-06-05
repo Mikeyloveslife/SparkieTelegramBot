@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 
 b1 = KeyboardButton(text='💬 Chat with Sparkie')
 b2 = KeyboardButton(text='Create content')
-b3 = KeyboardButton(text='🖼️ Generate a picture')
+b3 = KeyboardButton(text='🖼️ Image generation')
 buy_tokens = KeyboardButton(text='💳\nBuy tokens')
 b5 = KeyboardButton(text='💼\nCheck balance')
 lang = KeyboardButton(text='🌐', callback_data="\U0001F310")
@@ -19,6 +19,8 @@ menu_kb.row(buy_tokens, b5, lang)
 return_button = KeyboardButton(text='\u2B05')
 question_button = KeyboardButton(text='\uFF1F')
 
+return_kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+return_kb.row(return_button, question_button)
 
                   ### in_text_davinci_003 keyboard ###
 model_settings = KeyboardButton(text='⚙️\nModel settings')
@@ -99,8 +101,6 @@ m2 = InlineKeyboardButton(text='🤖 text-davinci-003', callback_data="text-davi
 model_kb = InlineKeyboardMarkup(row_width=1)
 model_kb.row(m1).row(m2)
 
-return_kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-return_kb.row(return_button, question_button)
 
 
 
@@ -115,5 +115,15 @@ c6 = InlineKeyboardButton(text='Your content', callback_data="your content")
 
 choose_content_type_kb = InlineKeyboardMarkup(row_width=2)
 choose_content_type_kb.row(c1, c2).row(c3, c4).row(c5, c6)
+
+
+                
+
+                ### IMAGE GENERATION KEYBOARDS ###
+i1 = InlineKeyboardButton(text='Create image', callback_data='create image')
+i2 = InlineKeyboardButton(text='Create image variation', callback_data='create image variation')
+
+image_generation_inline_kb = InlineKeyboardMarkup(row_width=2)
+image_generation_inline_kb.row(i1, i2)
 
 

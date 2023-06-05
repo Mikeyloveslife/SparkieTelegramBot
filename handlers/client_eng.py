@@ -219,9 +219,6 @@ async def in_choose_model_reply_eng(message: Message, state: FSMContext):
 async def command_create_content_eng(message: Message):
   await bot.send_message(message.from_user.id, 'Choose one of the provided publishing styles or click the button "Your content"', reply_markup=choose_content_type_kb)
 
-#@dp.message_handler(commands=['/Generate_a_picture'])
-async def generate_a_picture_eng(message: Message):
-  await bot.send_message(message.from_user.id, 'Describe what kind of art you want to get or use our tutorial for efficient prompting, to get the most out of it. ')
 
 
   
@@ -237,7 +234,7 @@ def register_handlers_client_ENG(dp : Dispatcher):
   dp.register_message_handler(in_temperature_reply_eng, (Text(equals=["\u2B05", "\uFF1F"])) | (lambda message: 0 <= float(message.text) <= 1), state=Form.in_temperature)
   dp.register_callback_query_handler(in_choose_model_inline_eng, lambda c: c.data in ["gpt-3.5-turbo", "text-davinci-003"], state=Form.in_choose_model)
   dp.register_message_handler(in_choose_model_reply_eng, state=Form.in_choose_model)
-  dp.register_message_handler(generate_a_picture_eng, Text(equals='🖼️ Generate a picture'))
+  # dp.register_message_handler(generate_a_picture_eng, Text(equals='🖼️ Generate a picture'))
   #dp.register_message_handler(command_create_content_eng, Text(equals='Create content'))
   
 

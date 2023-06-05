@@ -12,6 +12,7 @@ from handlers.client_ukr import register_handlers_client_UKR
 from handlers.client_ru import register_handlers_client_RU
 
 from payments import payments_eng, payments_ukr, payments_ru
+from image_generation import image_generation_eng
 
 register_handlers_client_ENG(dp)
 register_handlers_client_UKR(dp)
@@ -35,11 +36,11 @@ async def process_start(message: Message):
     user = message.from_user
     name = user.first_name if user.first_name else user.username
     if user_lang == 'ENG':
-      await bot.send_message(message.chat.id, f"Hi, {name}! It's great to have you back in Sparkie family!\nEvery masterpiece starts with a single idea - so start creating!", reply_markup=keyboards_eng.menu_kb)
+      await bot.send_message(message.chat.id, f"Hi, {name}! It's great to have you back in Sparkie family! Every masterpiece starts with a single idea - so start creating!", reply_markup=keyboards_eng.menu_kb)
     elif user_lang == 'UKR':
       await bot.send_message(message.chat.id, f"Вітаю, {name}! Нам дуже приємно, що ви повернулися до родини Sparkie! Кожен шедевр починається з однієї ідеї - тож починайте творити!", reply_markup=keyboards_ukr.menu_kb)
     elif user_lang == 'RU':
-      await bot.send_message(message.chat.id, f"Приветствую, {name}! Рады снова видеть вас в семье Sparkie!\nКаждый шедевр начинается с единственной идеи - так что начинайте творить!", reply_markup=keyboards_eng.menu_kb)
+      await bot.send_message(message.chat.id, f"Приветствую, {name}! Рады снова видеть вас в семье Sparkie! Каждый шедевр начинается с единственной идеи - так что начинайте творить!", reply_markup=keyboards_eng.menu_kb)
   else:
     # New user chooses language
     await bot.send_message(message.chat.id, "Please choose your preferred lanhuage:", reply_markup=keyboards_eng.language_kb)
