@@ -21,7 +21,7 @@ register_handlers_client_RU(dp)
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, CallbackQuery
 from keyboards import keyboards_eng, keyboards_ukr, keyboards_ru
-from data_base.sqlite_db import check_user_exists, get_user_lang, update_user_lang, default_user_settings
+from data_base.sqlite_db import check_user_exists, get_user_lang, update_user_lang, set_default_user_settings
 
 
 @dp.message_handler(Text(equals='/start'))
@@ -63,19 +63,19 @@ async def choose_lang_inline(callback_query: CallbackQuery):
   if data == 'ENG':
     await bot.send_message(callback_query.from_user.id, "English has been installed.", reply_markup=keyboards_eng.menu_kb)
     if user_lang == None:
-      default_user_settings(user_id, tokens, token_limit, temperature, model)
+      set_default_user_settings(user_id, tokens, token_limit, temperature, model)
       await bot.send_message(callback_query.from_user.id, "Welcome to Sparkie family! We're excited to have you join our community. As a new user, you have been credited with 5000 tokens to try out our product. We hope you enjoy using our service. Let us know if you have any questions or feedback. Push one of the menu buttons to get started.", reply_markup=keyboards_eng.menu_kb)
     update_user_lang(user_id, data)
   elif data == 'UKR':
     await bot.send_message(callback_query.from_user.id, "Встановлено українську мову.", reply_markup=keyboards_ukr.menu_kb)
     if user_lang == None:
-      default_user_settings(user_id, tokens, token_limit, temperature, model)
+      set_default_user_settings(user_id, tokens, token_limit, temperature, model)
       await bot.send_message(callback_query.from_user.id, "Ласкаво просимо до родини Sparkie! Ми раді вітати вас в нашій спільноті. Як новому користувачу, вам було нараховано 5000 токенів, щоб випробувати наш продукт. Ми сподіваємося, що вам сподобається використовувати наш сервіс. Дайте нам знати, якщо у вас є якісь питання або відгуки. Натисніть одну з кнопок меню, щоб почати.", reply_markup=keyboards_ukr.menu_kb)
     update_user_lang(user_id, data)
   elif data == 'RU':
     await bot.send_message(callback_query.from_user.id, "Русский язык установлен.", reply_markup=keyboards_ru.menu_kb)
     if user_lang == None:
-      default_user_settings(user_id, tokens, token_limit, temperature, model)
+      set_default_user_settings(user_id, tokens, token_limit, temperature, model)
       await bot.send_message(callback_query.from_user.id, "Добро пожаловать в семью Sparkie! Мы рады, что вы присоединились к нашему сообществу. В качестве нового пользователя вам было начислено 5000 токенов для тестирования нашего продукта. Мы надеемся, что вам понравится использовать наш сервис. Если у вас есть вопросы или отзывы, пожалуйста, сообщите нам. Нажмите одну из кнопок меню, чтобы начать.", reply_markup=keyboards_ru.menu_kb)
     update_user_lang(user_id, data)
 

@@ -56,7 +56,7 @@ async def create_image_variation(message: Message, state: FSMContext):
         await bot.send_message(message.from_user.id, "Model under the hood is DALL·E, an AI system that can create realistic images and art from a description in natural language. It has the ability to create variations of a user provided image:", reply_markup=return_kb)
     else:
         print("Buba here")
-        image = await message.photo[-1]
+        image = message.photo[-1]
         file_size = os.path.getsize(image.name)
         if file_size > 4 * 1024 * 1024:
           await bot.send_message(message.from_user.id, "The file is too large. Please send an image that is less than 4 MB.", reply_markup=return_kb)

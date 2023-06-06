@@ -45,8 +45,8 @@ def get_token_balance(user_id: int):
       token_balance = cursor.fetchone()[0]
       return token_balance
 
-# Add or update the user's token balance
-def default_user_settings(user_id: int, tokens: int, max_length: int, temperature: float, model: str):
+          ### Set default user settings ###
+def set_default_user_settings(user_id: int, tokens: int, max_length: int, temperature: float, model: str):
   with sqlite3.connect('user_settings.db') as conn:
     cursor = conn.cursor()
     cursor.execute('''INSERT INTO users(user_id, tokens, max_length, temperature, model) VALUES(?, ?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET tokens = ?, max_length = ?, temperature = ?, model = ?''', (user_id, tokens, max_length, temperature, model, tokens, max_length, temperature, model))
@@ -82,7 +82,7 @@ def update_max_length(user_id: int, max_length: int):
     cursor.execute("UPDATE users SET max_length = ? WHERE user_id = ?", (max_length, user_id))
     conn.commit()
 
-         ### The function gets token balance for users ###
+         ### Retrieve current temperature ###
 def get_temperature(user_id: int):
   with sqlite3.connect('user_settings.db') as conn:
     cursor = conn.cursor()
@@ -93,6 +93,7 @@ def get_temperature(user_id: int):
     else:
       return None
 
+              ### Change temperature ###
 def update_temperature(user_id: int, temperature: float):
   with sqlite3.connect('user_settings.db') as conn:
     cursor = conn.cursor()
@@ -106,7 +107,7 @@ def subtract_tokens(user_id: int, num_tokens_used: int):
     cursor.execute('UPDATE users SET tokens = tokens - ? WHERE user_id = ?', (num_tokens_used, user_id))
     conn.commit()
 
-
+           ### Retrieve current model ###
 def get_model(user_id: int):
     with sqlite3.connect('user_settings.db') as conn:
       cursor = conn.cursor()
@@ -117,7 +118,8 @@ def get_model(user_id: int):
       else:
           return None
 
-def update_model(user_id: int, model: str):
+                 ### Change model ###
+def change_model(user_id: int, model: str):
   valid_model = ('gpt-3.5-turbo', 'text-davinci-003')
   if model not in valid_model:
     raise ValueError(f'Invalid model choice. Must be one of: {valid_model}')

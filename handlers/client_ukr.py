@@ -11,7 +11,7 @@ from aiogram.dispatcher import FSMContext
 
 
 from keyboards.keyboards_ukr import menu_kb, in_text_davinci_003_kb, model_settings_kb, max_length_kb, temperature_replykeyboard, temperature_inlinekeyboard, language_kb, model_kb, return_kb, in_gpt_turbo_kb
-import sqlite3
+
 
 from data_base.get_sqlite import *
 
@@ -135,57 +135,63 @@ async def in_max_length_ukr(message: Message, state: FSMContext):
       update_max_length(message.from_user.id, max_length)
       await Form.in_model_settings_ukr.set()
       await bot.send_message(message.from_user.id, f"Максимальну довжину було змінено на {max_length}.", reply_markup=model_settings_kb)
-  except:
+  except ValueError:
     if message.text == '\u2B05':
       await Form.in_model_settings_ukr.set()
       await bot.send_message(message.from_user.id, "Оберіть одне з налаштувань:", reply_markup=model_settings_kb)
+    elif message.text == "\uFF1F":
+      user_id = message.from_user.id
+      current_max_length = get_max_length(user_id)
+      await bot.send_message(message.from_user.id, f"Максимальна довжина - це максимальна кількість токенів, що можуть бути згенеровані за раз. Один токен відповідає приблизно 4 символам для звичайного тексту.\nВи можете використовувати до 4097 токенів, які розподіляються між вхідним текстом та результатом.\n\nВаша поточна Максимальна Довжина складає: {current_max_length}\nБудь ласка, оберіть необхідне вам значення:", reply_markup=max_length_kb)
     else:
-      if message.text == "\uFF1F":
-        user_id = message.from_user.id
-        current_max_length = get_max_length(user_id)
-        await bot.send_message(message.from_user.id, f"Максимальна довжина - це максимальна кількість токенів, що можуть бути згенеровані за раз. Один токен відповідає приблизно 4 символам для звичайного тексту.\nВи можете використовувати до 4097 токенів, які розподіляються між вхідним текстом та результатом.\n\nВаша поточна Максимальна Довжина складає: {current_max_length}\nБудь ласка, введіть необхідне вам значення:", reply_markup=max_length_kb)
-      else:
-        await bot.send_message(message.from_user.id, "Будь ласка, введіть числове значення.")
+      await bot.send_message(message.from_user.id, "Будь ласка, введіть числове значення.")
 
                      ### In_temperature handler ###
 #@dp.callback_query_handler(lambda c: c.data in ["0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"], state = Form.in_temperature_ukr)
 async def in_temperature_inline_ukr(callback_query: CallbackQuery, state: FSMContext):
-  data = float(callback_query.data)
-  if 0 <= data <= 1:
-    update_temperature(callback_query.from_user.id, data)
+  temperature = float(callback_query.data)
+  if 0 <= temperature <= 1:
+    update_temperature(callback_query.from_user.id, temperature)
     await Form.in_model_settings_ukr.set()
-    await bot.send_message(callback_query.from_user.id, f"Температуру було встановлено на рівні: {data}.", reply_markup=model_settings_kb)
+    await bot.send_message(callback_query.from_user.id, f"Температуру було встановлено на рівні: {temperature}.", reply_markup=model_settings_kb)
 
     
               ### Return button for In_temperature ###
-#@dp.message_handler((Text(equals=["\u2B05", "\uFF1F"])) | (lambda message: 0 <= float(message.text) <= 1), state=Form.in_temperature_ukr)
+#@dp.message_handler(state=Form.in_temperature_ukr)
 async def in_temperature_reply_ukr(message: Message, state: FSMContext):
-  if message.text == "\u2B05":
-    await Form.in_model_settings_ukr.set()
-    await bot.send_message(message.from_user.id, "Оберіть одне з налаштувань:", reply_markup=model_settings_kb)
-  elif message.text == "\uFF1F":
-    user_id = message.from_user.id
-    current_temperature = get_temperature(user_id)
-    await bot.send_message(message.from_user.id, f"Температура контролює креативність та випадковість відповідей, створених лінгвістичною моделлю. Низька температура призведе до більш консервативних та детермінованих відповідей, тоді як вища температура створить більш різноманітні та непередбачувані відповіді. Температуру можна налаштувати в залежності від бажаного рівня креативності та логічної зв'язності для конкретної задачі\n\nВаша поточна Температура становить: {current_temperature}. Будь ласка, оберіть необхідне вам значення:", reply_markup=temperature_inlinekeyboard)
-  elif 0 <= float(message.text) <= 1:
-    update_temperature(message.from_user.id, float(message.text))
-    await Form.in_model_settings_ukr.set()
-    await bot.send_message(message.from_user.id, f"Температуру було встановлено на рівні {float(message.text)}.", reply_markup=model_settings_kb)
+  try:
+    temperature = float(message.text)
+    if 0 <= temperature <= 1:
+      update_temperature(message.from_user.id, temperature)
+      await Form.in_model_settings_ukr.set()
+      await bot.send_message(message.from_user.id, f"Температуру було встановлено на рівні {temperature}.", reply_markup=model_settings_kb)
+    else:
+      raise ValueError
+  except ValueError:
+    if message.text == "\u2B05":
+      await Form.in_model_settings_ukr.set()
+      await bot.send_message(message.from_user.id, "Оберіть одне з налаштувань:", reply_markup=model_settings_kb)
+    elif message.text == "\uFF1F":
+      user_id = message.from_user.id
+      current_temperature = get_temperature(user_id)
+      await bot.send_message(message.from_user.id, f"Температура контролює креативність та випадковість відповідей, створених лінгвістичною моделлю. Низька температура призведе до більш консервативних та детермінованих відповідей, тоді як вища температура створить більш різноманітні та непередбачувані відповіді. Температуру можна налаштувати в залежності від бажаного рівня креативності та логічної зв'язності для конкретної задачі\n\nВаша поточна Температура становить: {current_temperature}. Будь ласка, оберіть необхідне вам значення:", reply_markup=temperature_inlinekeyboard)
+    else:
+      await bot.send_message(message.from_user.id, "Температура повинна бути числовим значенням від 0 до 1.", reply_markup=temperature_inlinekeyboard)
     
 
 
                            ### In choose model ###
 #@dp.callback_query_handler(lambda c: c.data in ["gpt-3.5-turbo", "text-davinci-003"], state = Form.in_choose_model_ukr)
 async def in_choose_model_inline_ukr(callback_query: CallbackQuery, state: FSMContext):
-  data = callback_query.data
-  if data == "gpt-3.5-turbo":
-    update_model(callback_query.from_user.id, data)
+  model = callback_query.data
+  if model == "gpt-3.5-turbo":
+    change_model(callback_query.from_user.id, model)
     await Form.in_gpt_turbo_ukr.set()
-    await bot.send_message(callback_query.from_user.id, f"Модель було змінено на {data}. Ви можете продовжувати спілкування.", reply_markup=in_gpt_turbo_kb)
-  elif data == 'text-davinci-003':
-    update_model(callback_query.from_user.id, data)
+    await bot.send_message(callback_query.from_user.id, f"Модель було змінено на {model}. Ви можете продовжувати спілкування.", reply_markup=in_gpt_turbo_kb)
+  elif model == 'text-davinci-003':
+    change_model(callback_query.from_user.id, model)
     await Form.in_text_davinci_003_ukr.set()
-    await bot.send_message(callback_query.from_user.id, f"Модель було змінено на {data}. Ви можете продовжувати спілкування.", reply_markup=in_text_davinci_003_kb)
+    await bot.send_message(callback_query.from_user.id, f"Модель було змінено на {model}. Ви можете продовжувати спілкування.", reply_markup=in_text_davinci_003_kb)
 
 
     
@@ -234,7 +240,7 @@ def register_handlers_client_UKR(dp : Dispatcher):
   dp.register_message_handler(in_prompt_settings_ukr, state=Form.in_model_settings_ukr)
   dp.register_message_handler(in_max_length_ukr, state=Form.in_max_length_ukr)
   dp.register_callback_query_handler(in_temperature_inline_ukr, lambda c: c.data in ["0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"], state=Form.in_temperature_ukr)
-  dp.register_message_handler(in_temperature_reply_ukr, (Text(equals=["\u2B05", "\uFF1F"])) | (lambda message: 0 <= float(message.text) <= 1), state=Form.in_temperature_ukr)
+  dp.register_message_handler(in_temperature_reply_ukr, state=Form.in_temperature_ukr)
   dp.register_callback_query_handler(in_choose_model_inline_ukr, lambda c: c.data in ["gpt-3.5-turbo", "text-davinci-003"], state=Form.in_choose_model_ukr)
   dp.register_message_handler(in_choose_model_reply_ukr, state=Form.in_choose_model_ukr)
   dp.register_message_handler(generate_a_picture_ukr, Text(equals='🖼️ Згенерувати зображення'))
