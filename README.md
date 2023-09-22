@@ -5,15 +5,18 @@
 
 This is a versatile chatbot powered by OpenAI's GPT models capable of both text and image generation. It has built-in chat memory support and is designed for easy integration. After installation you can do the following:
 
-* Automatically list every new user in sqlite3 database by Telegram user ID
+* Automatically list every new user in SQLite3 database by Telegram user ID as a primary key
+* Automatically set default settings for every user(tokens, max_length, temperature, model)
 * Chat with text-davinci-003 and gpt-3.5-turbo models
 * Swap text-davinci-003 and gpt-3.5-turbo models in "Model settings"
-* Customize temperature and max length for text-davinci-003 and save the preferences to sqlite3
-* Count and save token usage
+* Customize temperature and max length for text-davinci-003 and save the preferences to SQLite3
+* Count token usage for every text or image generation and save new balance in SQLite3 database
 
+## Installation instructions
+Here is a step-by-step tutorial on how to install Sparky on your machine.
 
+1. 
 
-All custom settings of your users being saved to sqlite3 database and fetched every time they perform an action in the bot.
 
 Currently supported languages:
 - **English;**
