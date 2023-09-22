@@ -1,6 +1,9 @@
-# About Sparkie
+# Sparky AI
 
-Introducing the ultimate language model experience on Telegram - my latest project brings GPT language models to the messaging platform in a comprehensive and user-friendly way. With support for cutting-edge models, the Telegram bot gives users complete control over the settings that matter most - including temperature and maximum length - all directly from the bot interface.
+
+## A fully functional example of Telegram bot which utilizes OpenAI models
+
+Sparky AI is a versatile chatbot powered by OpenAI's GPT models. This bot is designed for easy integration, capable of both text and image generation, with built-in chat memory support. 
 
 Currently supported models:
 - text-davinci-003;
