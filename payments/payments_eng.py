@@ -1,19 +1,16 @@
 from create_bot import dp, bot
 from aiogram.types import Message, CallbackQuery
-from aiogram.dispatcher.filters import Text
+#from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from data_base.sqlite_db import get_token_balance
-from keyboards.keyboards_eng import menu_kb, buy_tokens_kb, check_balance_kb, payment_plans_kb, bitcoin_kb
+from data_base.sqlite_db import Database
+from keyboards.keyboards_eng import menu_kb, check_balance_kb, payment_plans_kb, bitcoin_kb, return_kb
+
+from data_base.sqlite_db import All_states
+db = Database('user_settings.db')
 
 from pycoingecko import CoinGeckoAPI
 cg = CoinGeckoAPI()
-
-
-class Form(StatesGroup):
-  in_buy_tokens = State()
-  in_check_balance = State()
-  in_check_balance_buy_tokens = State()
 
 import io
 import qrcode
@@ -43,40 +40,38 @@ def generate_qr(address, value, bitcoin_price):
     return buf
 
 
-@dp.message_handler(Text(equals='💳\nBuy tokens'))
+@dp.message_handler(text='💳\nBuy tokens')
 async def buy_tokens(message: Message, state: FSMContext):
   current_state = await state.get_state()
-  if current_state == Form.in_check_balance.state:
-    await Form.in_buy_tokens.set()
-    user_id = message.from_user.id
-    token_balance = get_token_balance(user_id)
-    await bot.send_message(message.from_user.id,'Choose one of our payment providers:', reply_markup=bitcoin_kb)
-    await bot.send_message(message.from_user.id, f'Your token balance is {token_balance}.', reply_markup=buy_tokens_kb)
-    await Form.in_check_balance_buy_tokens.set()
+  user_id = message.from_user.id
+  token_balance = db.get_param(user_id, ("tokens",))
+  if current_state == All_states.in_check_balance.state:
+    await All_states.in_buy_tokens.set()
+    await bot.send_message(user_id,'Choose one of our payment providers:', reply_markup=bitcoin_kb)
+    await bot.send_message(user_id, f'Your token balance is {token_balance}.', reply_markup=return_kb)
+    await All_states.in_check_balance_buy_tokens.set()
   else:
-    await Form.in_buy_tokens.set()
-    user_id = message.from_user.id
-    token_balance = get_token_balance(user_id)
-    await bot.send_message(message.from_user.id,'Choose one of our payment providers:', reply_markup=bitcoin_kb)
-    await bot.send_message(message.from_user.id, f'Your token balance is {token_balance}.', reply_markup=buy_tokens_kb)
+    await All_states.in_buy_tokens.set()
+    await bot.send_message(user_id,'Choose one of our payment providers:', reply_markup=bitcoin_kb)
+    await bot.send_message(user_id, f'Your token balance is {token_balance}.', reply_markup=return_kb)
 
-@dp.message_handler(state=[Form.in_buy_tokens, Form.in_check_balance_buy_tokens])
+@dp.message_handler(state=[All_states.in_buy_tokens, All_states.in_check_balance_buy_tokens])
 async def in_buy_tokens(message: Message, state: FSMContext):
   current_state = await state.get_state()
-  if current_state == Form.in_buy_tokens.state:
-    if message.text == '\u2B05':
+  if current_state == All_states.in_buy_tokens.state:
+    if message.text == '⬅️':
       await state.finish()
       await bot.send_message(message.from_user.id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
-  elif current_state == Form.in_check_balance_buy_tokens.state:
-    if message.text == '\u2B05':
+  elif current_state == All_states.in_check_balance_buy_tokens.state:
+    if message.text == '⬅️':
       await state.finish()
       await check_balance(message)
 
 
-@dp.callback_query_handler(lambda c: c.data in ["bitcoin"], state=[Form.in_buy_tokens, Form.in_check_balance_buy_tokens])
+@dp.callback_query_handler(lambda c: c.data in ["bitcoin"], state=[All_states.in_buy_tokens, All_states.in_check_balance_buy_tokens])
 async def process_callback(callback_query: CallbackQuery, state: FSMContext):
   current_state = await state.get_state()
-  if current_state == Form.in_check_balance_buy_tokens.state or current_state == Form.in_buy_tokens.state:
+  if current_state == All_states.in_check_balance_buy_tokens.state or current_state == All_states.in_buy_tokens.state:
     data = callback_query.data
     if data == 'bitcoin':
       await bot.send_message(callback_query.from_user.id, text=
@@ -90,10 +85,10 @@ async def process_callback(callback_query: CallbackQuery, state: FSMContext):
   $40 - 2 000 000 tokens""", reply_markup=payment_plans_kb)
 
   
-@dp.callback_query_handler(lambda c: c.data in ["2", "5", "10", "20", "40"], state=[Form.in_buy_tokens, Form.in_check_balance_buy_tokens])
+@dp.callback_query_handler(lambda c: c.data in ["2", "5", "10", "20", "40"], state=[All_states.in_buy_tokens, All_states.in_check_balance_buy_tokens])
 async def pay_process(callback_query: CallbackQuery, state: FSMContext):
   current_state = await state.get_state()
-  if current_state == Form.in_check_balance_buy_tokens.state or current_state == Form.in_buy_tokens.state:
+  if current_state == All_states.in_check_balance_buy_tokens.state or current_state == All_states.in_buy_tokens.state:
     usd_value = callback_query.data
     if usd_value == '2':
       get_bitcoin_price = cg.get_price(ids='bitcoin', vs_currencies='usd')
@@ -104,19 +99,21 @@ async def pay_process(callback_query: CallbackQuery, state: FSMContext):
       await bot.send_photo(chat_id=callback_query.message.chat.id, photo=qr, caption="Please scan this QR code to complete your payment")
 
 
-@dp.message_handler(Text(equals='💼\nCheck balance'))
+#@dp.message_handler(text="💼\nCheck balance")
 async def check_balance(message: Message):
-  await Form.in_check_balance.set()
+  await All_states.in_check_balance.set()
   user_id = message.from_user.id
-  token_balance = get_token_balance(user_id)
-  await bot.send_message(message.from_user.id, f'Your tokens: {token_balance}', reply_markup=check_balance_kb)
+  token_balance = db.get_param(user_id, ("tokens",))
+  await bot.send_message(user_id, f"Your token balance: {token_balance}", reply_markup=check_balance_kb)
 
 
-@dp.message_handler(state=Form.in_check_balance)
+
+@dp.message_handler(state=All_states.in_check_balance)
 async def process_in_check_balance(message: Message, state: FSMContext):
+  user_id = message.from_user.id
   if message.text == '💳\nBuy tokens':
     await buy_tokens(message, state)
-  elif message.text == '\u2B05':
+  if message.text == '⬅️':
     await state.finish()
-    await bot.send_message(message.from_user.id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
+    await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
     

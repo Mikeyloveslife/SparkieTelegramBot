@@ -64,11 +64,11 @@ async def buy_tokens_ukr(message: Message, state: FSMContext):
 async def in_buy_tokens_ukr(message: Message, state: FSMContext):
   current_state = await state.get_state()
   if current_state == Form.in_buy_tokens_ukr.state:
-    if message.text == '\u2B05':
+    if message.text == '⬅️':
       await state.finish()
       await bot.send_message(message.from_user.id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
   elif current_state == Form.in_check_balance_buy_tokens_ukr.state:
-    if message.text == '\u2B05':
+    if message.text == '⬅️':
       await state.finish()
       await check_balance_ukr(message)
 
@@ -116,7 +116,7 @@ async def check_balance_ukr(message: Message):
 async def process_in_check_balance_ukr(message: Message, state: FSMContext):
   if message.text == '💳\nПридбати токени':
     await buy_tokens_ukr(message, state)
-  elif message.text == '\u2B05':
+  elif message.text == '⬅️':
     await state.finish()
     await bot.send_message(message.from_user.id, "Ласкаво просимо до головного меню. Будь ласка, оберіть одну з опцій:", reply_markup=menu_kb)
     

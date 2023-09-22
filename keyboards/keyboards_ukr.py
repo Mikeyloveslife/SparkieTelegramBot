@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 
 
-b1 = KeyboardButton(text='💬 Чат зі Sparkie')
+b1 = KeyboardButton(text='💬 Чат зі Sparky')
 b2 = KeyboardButton(text='Create content')
 b3 = KeyboardButton(text='🖼️ Згенерувати зображення')
 buy_tokens = KeyboardButton(text='💳\nПридбати токени')
@@ -16,8 +16,8 @@ menu_kb.row(buy_tokens, b5, lang)
 
                     ### Go back button and ? button ###
 
-return_button = KeyboardButton(text='\u2B05')
-question_button = KeyboardButton(text='\uFF1F')
+return_button = KeyboardButton(text='⬅️')
+question_button = KeyboardButton(text='�')
 
 
                   ### in_text_davinci_003 keyboard ###

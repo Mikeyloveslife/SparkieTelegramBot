@@ -7,70 +7,118 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from data_base.sqlite_db import get_token_balance
-from keyboards.keyboards_eng import menu_kb, image_generation_inline_kb, return_kb
+from keyboards.keyboards_eng import menu_kb, image_generation_inline_kb, size_inline_kb, size_reply_kb
 
-class Form(StatesGroup):
-  in_create_image = State()
-  in_create_image_variation = State()
+from data_base.sqlite_db import Database, All_states
+db = Database('user_settings.db')
 
 
+# class Form(StatesGroup):
+  #in_generate_image = State()
+  # in_generate_image_variation = State()
+  # in_image_size = State()
 
-@dp.message_handler(Text(equals='🖼️ Image generation'))
+
+
+from io import BytesIO
+from PIL import Image
+
+
+@dp.message_handler(text="🖼️ Image generation")
 async def image_generation_eng(message: Message):
-  await bot.send_message(message.from_user.id, 'Choose if you want to create a new image or an image variation out of existing picture:', reply_markup=image_generation_inline_kb)
+  await bot.send_message(message.from_user.id, 'Choose if you want to create a new image or a variation out of existing image:', reply_markup=image_generation_inline_kb)
 
 
-@dp.callback_query_handler(lambda c: c.data in ["create image", "create image variation"])
-async def choose_image_format(callback_query: CallbackQuery, state: FSMContext):
+@dp.callback_query_handler(lambda c: c.data in ["generate image", "generate image variation"])
+async def choose_img_gen_endpoint(callback_query: CallbackQuery, state: FSMContext):
+  user_id = callback_query.from_user.id
   button_text = callback_query.data
-  if button_text == "create image":
-    await Form.in_create_image.set()
-    await bot.send_message(callback_query.from_user.id, 'Provide a text description of the desired image within the length of 1000 characters:', reply_markup=return_kb)
-  elif button_text == "create image variation":
-    await Form.in_create_image_variation.set()
-    await bot.send_message(callback_query.from_user.id, 'Send an image to use as the basis for the variation. Must be a valid PNG file, less than 4MB, and square:', reply_markup=return_kb)
+  if button_text == "generate image":
+    await All_states.in_generate_image.set()
+  elif button_text == "generate image variation":
+    await All_states.in_generate_image_variation.set()
+    
+  await bot.send_message(user_id, 'Choose image resolution:', reply_markup=size_inline_kb)
 
-@dp.message_handler(state=Form.in_create_image)
+@dp.callback_query_handler(lambda c: c.data in ["256x256", "512x512", "1024x1024"], state=[All_states.in_generate_image, All_states.in_generate_image_variation])
+async def choose_img_size(callback_query: CallbackQuery, state: FSMContext):
+  user_id = callback_query.from_user.id
+  img_size = callback_query.data
+  db.update_param(user_id, ("img_size", img_size))
+  current_state = await state.get_state()
+  if img_size and current_state == All_states.in_generate_image.state:
+    await bot.send_message(user_id, 'Provide a text description of the desired image within the length of 1000 characters:', reply_markup=size_reply_kb)
+  elif img_size and current_state == All_states.in_generate_image_variation.state:
+    await bot.send_message(user_id, 'Send a square PNG image less than 4MB in size:', reply_markup=size_reply_kb)
+
+#@dp.message_handler(state=Form.in_generate_image)
 async def create_image(message: Message, state: FSMContext):
-  if message.text == '\u2B05':
+  user_id = message.from_user.id
+  if message.text == '⬅️':
     await state.finish()
-    await bot.send_message(message.from_user.id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
-  elif message.text == "\uFF1F":
-    await bot.send_message(message.from_user.id, "Model under the hood is DALL·E, an AI system that can create realistic images and art from a description in natural language. It has the ability, given a prommpt, to create a new image:", reply_markup=return_kb)
+    await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
+  elif message.text == "Image size":
+    await bot.send_message(user_id, "Choose image resolution:", reply_markup=size_inline_kb)
   else:
-    create_image = openai.Image.create(
-    prompt=f"{message.text}\n",
-    n=1,
-    size="1024x1024")
-    image = create_image['data'][0]['url']
-    await bot.send_message(message.from_user.id, image)
+    try:
+      # create_image = openai.Image.create(
+      # prompt=f"{message.text}",
+      # n=1,
+      # size=db.get_img_size(user_id)[0])
+      # image = create_image['data'][0]['url']
+      # tokens = db.get_token_balance(user_id)
+      # num_tokens_used = db.get_img_size(user_id)[1]
+      # print(num_tokens_used)
+      # db.subtract_tokens(user_id, num_tokens_used)
+      # await bot.send_message(user_id, image, reply_markup=size_reply_kb)
+      # await bot.send_message(user_id, f"Token balance: {tokens-num_tokens_used}")
+      print("GENERATING AN IMAGE")
+    except openai.error.OpenAIError as e:
+      await bot.send_message(user_id, e.error["message"])
 
 
-@dp.message_handler(content_types=['photo'], state=Form.in_create_image_variation)
+#@dp.message_handler(content_types=['photo', 'text'], state=All_states.in_generate_image_variation)
 async def create_image_variation(message: Message, state: FSMContext):
-    if message.caption == '\u2B05':
-        await state.finish()
-        await bot.send_message(message.from_user.id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
-    elif message.caption == "\uFF1F":
-        await bot.send_message(message.from_user.id, "Model under the hood is DALL·E, an AI system that can create realistic images and art from a description in natural language. It has the ability to create variations of a user provided image:", reply_markup=return_kb)
-    else:
-        print("Buba here")
-        image = message.photo[-1]
-        file_size = os.path.getsize(image.name)
-        if file_size > 4 * 1024 * 1024:
-          await bot.send_message(message.from_user.id, "The file is too large. Please send an image that is less than 4 MB.", reply_markup=return_kb)
-        else:
-          print(image.name)
-          with open(f"{image.name}", "rb") as img_file:
-              create_image_variation = openai.Image.create_variation(
-                  image=img_file,
-                  n=1,
-                  size="1024x1024")
-              variation_url = create_image_variation['data'][0]['url']
-          print("Buba here")
-          await bot.send_photo(message.from_user.id, photo=variation_url, caption='Here is the variation of the provided image.')
-          print("Buba here")
+  user_id = message.from_user.id
+  if message.text == '⬅️':
+    await state.finish()
+    await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
+  elif message.text == "Image size":
+    await bot.send_message(user_id, "Choose image resolution:", reply_markup=size_inline_kb)
+  else:
+    print("HEY1")
+    ###
+    photo = message.photo[-1] 
+    file_id = photo.file_id
+    file_path = f"photos/{photo.file_id}.jpg"
+    await photo.download(destination_file=file_path)
+    print("HEY2")
+    ###
+    image = Image.open(file_path)
+    width, height = 256, 256
+    image = image.resize((width, height))
+    image = image.convert("RGB")
+    byte_stream = BytesIO()
+    image.save(byte_stream, format='PNG')
+    byte_array = byte_stream.getvalue()
+    print("HEY3")
+    try:
+      create_image_variation = openai.Image.create_variation(
+      image=byte_array,
+      n=1,
+      size=db.get_img_size(user_id)[0])
+      variation_url = create_image_variation['data'][0]['url']
+      await bot.send_photo(user_id, photo=variation_url, caption='Here is the variation of the provided image.')
+      print("HEY4")
+      tokens = db.get_token_balance(user_id)
+      num_tokens_used = db.get_img_size(user_id)[1]
+      db.subtract_tokens(user_id, num_tokens_used)
+      await bot.send_message(user_id, f"Token balance: {tokens-num_tokens_used}")
+    except openai.error.OpenAIError as e:
+      await bot.send_message(user_id, e.error["message"])
+
+
+
 
 
 
