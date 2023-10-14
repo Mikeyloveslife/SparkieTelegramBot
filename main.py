@@ -6,11 +6,8 @@ from handlers.client_eng import register_handlers_client_ENG
 from handlers.client_ukr import register_handlers_client_UKR
 from handlers.client_ru import register_handlers_client_RU
 
-
-
 from payments import payments_eng#, payments_ukr, payments_ru
 from image_generation import image_generation_eng
-
 
 from aiogram.types import Message, CallbackQuery
 from keyboards import keyboards_eng, keyboards_ukr, keyboards_ru
@@ -26,7 +23,7 @@ async def on_startup(_):
 
 
 
-@dp.message_handler(text="/start")
+#@dp.message_handler(text="/start")
 async def process_start(message: Message):
   # Get the user's Telegram ID
   user_id = message.from_user.id
@@ -64,7 +61,27 @@ async def process_start(message: Message):
     await bot.send_message(user_id, "Please choose your preferred language:", reply_markup=keyboards_eng.language_kb)
 
 
+### A SELECTION OF COMMANDS TO WORK REGARDLES STATES ###
+from handlers.client_eng import chat_with_sparkie_eng, check_balance, choose_lang_reply, image_generation_eng
+from aiogram.dispatcher import FSMContext
 
+@dp.message_handler(lambda message: message.text.startswith('/'), state='*')
+async def menu_handler(message: Message, state: FSMContext):
+   await state.finish()
+   if message.text == "/start":
+     await process_start(message)
+   elif message.text == "/menu":
+     await message.answer("Welcome to the main menu. Please select an option:", reply_markup=keyboards_eng.menu_kb)
+   elif message.text == "/chat_with_sparky":
+     await chat_with_sparkie_eng(message)
+   elif message.text == "/image_generation":
+     await image_generation_eng(message)
+   elif message.text == "/check_balance":
+     await check_balance(message)
+   elif message.text == "/language":
+     await choose_lang_reply(message)
+
+register_handlers_client_ENG(dp)
 
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)

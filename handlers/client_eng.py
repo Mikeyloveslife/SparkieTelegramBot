@@ -21,23 +21,7 @@ db = Database('user_settings.db')
 
                     ### MENU HANDLER ###
 from image_generation.image_generation_eng import image_generation_eng
-from payments.payments_eng import check_balance
-
-@dp.message_handler(text=["/menu", "/chat_with_sparky", "/image_generation", "/check_balance", "/language"], state='*')
-async def menu_handler(message: Message, state: FSMContext):
-   await state.finish()
-   if message.text == "/menu":
-    await message.answer("Welcome to the main menu. Please select an option:", reply_markup=keyboards_eng.menu_kb)
-   elif message.text == "/chat_with_sparky":
-     await chat_with_sparkie_eng(message)
-   elif message.text == "/image_generation":
-     await image_generation_eng(message)
-   elif message.text == "/check_balance":
-     await check_balance(message)
-   elif message.text == "/language":
-     await choose_lang_reply(message)
-     
-     
+from payments.payments_eng import check_balance     
      
 
           ### CREATE COMPLETION, SUM COMPLETION ###
@@ -89,26 +73,27 @@ async def in_gpt_turbo_eng(message: Message, state: FSMContext):
     await bot.send_message(user_id, "Choose one of the supported models:", reply_markup=model_kb)
   else:
     try:
-      chat_history = db.get_param(user_id, ("chat_history",))
-      completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-      {"role": "system", "content": f"You are a helpful assistant called Sparky. Here is the history of your chat with the user '{chat_history}'. Use the chat history only if it's related to the new prompt from a user"},
-      {"role": "user", "content": f"{message}"}])
-      new_response = completion["choices"][0]["message"]["content"]
-      sum_completion = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
-      messages=[
-      {"role": "system", "content": f"You are an assistant who summurizes the most important information from the chat. The summurization should not exceed 300 tokens, and you should keep it as concise as possible. The contents to summurize include: chat history, new prompt, new response. Here they are consecutively: 1 - '{chat_history}' 2 - '{user_message}'' 3 - '{new_response}'"}])
-      sum = sum_completion["choices"][0]["message"]["content"]
-      print(sum)
-      await bot.send_message(user_id, new_response)
-      db.update_param(user_id, ("chat_history", sum))
-      tokens = db.get_param(user_id, ("tokens",))
-      num_tokens_used = completion["usage"]["total_tokens"] + sum_completion["usage"]["total_tokens"]
-      print('\nnum_tokens_used:', num_tokens_used)
-      db.subtract_tokens(user_id, num_tokens_used)
-      await bot.send_message(user_id, f"Token balance: {tokens-num_tokens_used}")
+    #   chat_history = db.get_param(user_id, ("chat_history",))
+    #   completion = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo",
+    # messages=[
+    #   {"role": "system", "content": f"You are a helpful assistant called Sparky. Here is the history of your chat with the user '{chat_history}'. Use the chat history only if it's related to the new prompt from a user"},
+    #   {"role": "user", "content": f"{message}"}])
+    #   new_response = completion["choices"][0]["message"]["content"]
+    #   sum_completion = openai.ChatCompletion.create(
+    #   model="gpt-3.5-turbo",
+    #   messages=[
+    #   {"role": "system", "content": f"You are an assistant who summurizes the most important information from the chat. The summurization should not exceed 300 tokens, and you should keep it as concise as possible. The contents to summurize include: chat history, new prompt, new response. Here they are consecutively: 1 - '{chat_history}' 2 - '{user_message}'' 3 - '{new_response}'"}])
+    #   sum = sum_completion["choices"][0]["message"]["content"]
+    #   print(sum)
+    #   await bot.send_message(user_id, new_response)
+    #   db.update_param(user_id, ("chat_history", sum))
+    #   tokens = db.get_param(user_id, ("tokens",))
+    #   num_tokens_used = completion["usage"]["total_tokens"] + sum_completion["usage"]["total_tokens"]
+    #   print('\nnum_tokens_used:', num_tokens_used)
+    #   db.subtract_tokens(user_id, num_tokens_used)
+    #   await bot.send_message(user_id, f"Token balance: {tokens-num_tokens_used}")
+        print("IN GPT-TURBO MA MAN")
     except Exception as e:
       await bot.send_message(user_id, "An error occurred during the model interaction. Please try again later.")
       print(e)
@@ -272,7 +257,7 @@ async def in_choose_model_reply_eng(message: Message, state: FSMContext):
 
 
 
-           #### CHOOSE LANGUAGE ###
+                    #### CHOOSE LANGUAGE ###
 @dp.message_handler(text='🌐')
 async def choose_lang_reply(message: Message):
   user_id = message.chat.id
@@ -329,7 +314,6 @@ async def choose_lang_inline(callback_query: CallbackQuery):
 from image_generation.image_generation_eng import create_image, create_image_variation
            
 def register_handlers_client_ENG(dp : Dispatcher):
-  #dp.register_message_handler(menu_handler, text=["/menu", "/chat_with_sparky", "/image_generation", "/check_balance", "/language"], state="*")
   dp.register_message_handler(chat_with_sparkie_eng, text='💬 Chat with Sparky')
   dp.register_message_handler(in_gpt_turbo_eng, state=All_states.in_gpt_turbo)
   dp.register_message_handler(in_text_davinci_003_eng, state=All_states.in_text_davinci_003)
@@ -344,10 +328,7 @@ def register_handlers_client_ENG(dp : Dispatcher):
   dp.register_message_handler(check_balance, text="💼\nCheck balance")
   
 
-register_handlers_client_ENG(dp)
-
 
   
-
 
 

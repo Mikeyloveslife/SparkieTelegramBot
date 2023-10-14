@@ -99,7 +99,7 @@ async def pay_process(callback_query: CallbackQuery, state: FSMContext):
       await bot.send_photo(chat_id=callback_query.message.chat.id, photo=qr, caption="Please scan this QR code to complete your payment")
 
 
-#@dp.message_handler(text="💼\nCheck balance")
+@dp.message_handler(text="💼\nCheck balance")
 async def check_balance(message: Message):
   await All_states.in_check_balance.set()
   user_id = message.from_user.id
@@ -108,9 +108,10 @@ async def check_balance(message: Message):
 
 
 
-@dp.message_handler(state=All_states.in_check_balance)
+#@dp.message_handler(state=All_states.in_check_balance)
 async def process_in_check_balance(message: Message, state: FSMContext):
   user_id = message.from_user.id
+  print("IN CHECK BALANCE STATE MA MAN")
   if message.text == '💳\nBuy tokens':
     await buy_tokens(message, state)
   if message.text == '⬅️':
