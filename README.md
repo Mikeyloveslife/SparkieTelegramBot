@@ -15,10 +15,18 @@ This is a versatile chatbot powered by OpenAI's GPT models capable of both text 
 ## Installation instructions
 Here is a step-by-step tutorial on how to install Sparky on your machine.
 
-1. Clone the repository in a directory of your preference
+1. Clone the repository in a directory of your preference.
 ```shell
 git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.git
-```   
+```
+2. Create .env file in your code editor
+   * Open the cloned repository in your code editor
+   * Add new a new file called ".env"
+   * Open .env file and insert your OpenAI API key and Telegram bot API.
+```python
+OPENAI_API_KEY = replacewithyourapikey
+telegramBot_api = replacewithyourapikey
+```
 
 
 Currently supported languages:
