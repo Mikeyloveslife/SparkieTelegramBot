@@ -15,7 +15,10 @@ This is a versatile chatbot powered by OpenAI's GPT models capable of both text 
 ## Installation instructions
 Here is a step-by-step tutorial on how to install Sparky on your machine.
 
-1. 
+1. Clone the repository in a directory of your preference
+```shell
+git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.git
+```   
 
 
 Currently supported languages:
