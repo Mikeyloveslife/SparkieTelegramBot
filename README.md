@@ -19,13 +19,13 @@ Here is a step-by-step tutorial on how to install Sparky on your machine.
 ```shell
 git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.git
 ```
-2. Create .env file in your code editor
+2. Create environment variables in .env file: 
    * Open the cloned repository in your code editor
-   * Add new a new file called ".env"
+   * Add a new file called ".env"
    * Open .env file and insert your OpenAI API key and Telegram bot API.
 ```shell
-OPENAI_API_KEY = replacewithyourapikey
-telegramBot_api = replacewithyourapikey
+OPENAI_API_KEY = replacewithyourOpenAIapikey
+telegramBot_api = replacewithapitokenofyourTelegrambot
 ```
 
 
