@@ -23,7 +23,7 @@ git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.gi
    * Open the cloned repository in your code editor
    * Add new a new file called ".env"
    * Open .env file and insert your OpenAI API key and Telegram bot API.
-```python
+```shell
 OPENAI_API_KEY = replacewithyourapikey
 telegramBot_api = replacewithyourapikey
 ```
