@@ -19,16 +19,17 @@ Here is a step-by-step tutorial on how to install Sparky on your machine.
 ```shell
 git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.git
 ```
-2. Create a virtual environment with python3-venv and install dependencies(you can also use poetry, conda or another method of your preference)
+2. Open the repository in Visual Studio Code and navigate to terminal.
+3. Create a virtual environment with python3-venv and install dependencies(you can also use poetry, conda or another method of your preference):
       * Install the Python module for virtual environments (venv) on your system.
           ```shell
           sudo apt install python3-venv
           ```
       * Navigate to the project directory using the cd command.
           ```shell
-          cd pathtoprojectdirectory
+          cd pathtoyourprojectdirectory
           ```
-      * Once you are in the desired directory, run the following command to create a new virtual environment:
+      * Once you are in the project directory, run the following command to create a new virtual environment:
           ```shell
           python3 -m venv myenv
           ```
@@ -40,12 +41,18 @@ git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.gi
           Your terminal prompt should now show the name of the activated virtual environment.
       * Install necessary packages using pip:
           ```shell
-          pip install aiogram==2.13 openai Pillow pycoingecko qrcode
+          pip install aiogram==2.13 openai Pillow pycoingecko qrcode python-dotenv
           ```
+4. Select the correct Python interpreter:
+     * Run the following command in the terminal
+          ```shell
+          which python3
+          ```
+     * Copy the path.
+     * Open the Command Palette (Ctrl+Shift+P) and select "Python: Select Interpreter", hit "+ Enter interpreter path...". Finally, paste the path and push Enter.
 
 
-
-4. Create environment variables in .env file: 
+6. Create environment variables in .env file: 
    * Open the cloned repository in your code editor
    * Add a new file called ".env"
    * Open .env file and insert your OpenAI API key and Telegram bot API.
