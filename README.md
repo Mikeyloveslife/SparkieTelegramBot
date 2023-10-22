@@ -34,11 +34,13 @@ git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.gi
           python3 -m venv myenv
           ```
           Replace myenv with the name you want to give to your virtual environment.
+        
       * Activate the virtual environment by running the following command:
           ```shell
           source myenv/bin/activate
           ```
           Your terminal prompt should now show the name of the activated virtual environment.
+        
       * Install necessary packages using pip:
           ```shell
           pip install aiogram==2.13 openai Pillow pycoingecko qrcode python-dotenv
@@ -53,9 +55,9 @@ git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.gi
 
 
 6. Create environment variables in .env file: 
-   * Open the cloned repository in your code editor
-   * Add a new file called ".env"
-   * Open .env file and insert your OpenAI API key and Telegram bot API.
+   * Navigate to the left upper corner and add a new file.
+   * Name it ".env".
+   * Open ".env" file and insert your OpenAI API key and Telegram bot API.
 ```shell
 OPENAI_API_KEY = replacewithyourOpenAIapikey
 telegramBot_api = replacewithapitokenofyourTelegrambot
