@@ -19,7 +19,33 @@ Here is a step-by-step tutorial on how to install Sparky on your machine.
 ```shell
 git clone https://github.com/denyskarpov-eng/Sparkie-the-GPT-bot-for-Telegram.git
 ```
-2. Create environment variables in .env file: 
+2. Create a virtual environment with python3-venv and install dependencies(you can also use poetry, conda or another method of your preference)
+      * Install the Python module for virtual environments (venv) on your system.
+          ```shell
+          sudo apt install python3-venv
+          ```
+      * Navigate to the project directory using the cd command.
+          ```shell
+          cd pathtoprojectdirectory
+          ```
+      * Once you are in the desired directory, run the following command to create a new virtual environment:
+          ```shell
+          python3 -m venv myenv
+          ```
+          Replace myenv with the name you want to give to your virtual environment.
+      * Activate the virtual environment by running the following command:
+          ```shell
+          source myenv/bin/activate
+          ```
+          Your terminal prompt should now show the name of the activated virtual environment.
+      * Install necessary packages using pip:
+          ```shell
+          pip install aiogram==2.13 openai Pillow pycoingecko qrcode
+          ```
+
+
+
+4. Create environment variables in .env file: 
    * Open the cloned repository in your code editor
    * Add a new file called ".env"
    * Open .env file and insert your OpenAI API key and Telegram bot API.
@@ -29,15 +55,3 @@ telegramBot_api = replacewithapitokenofyourTelegrambot
 ```
 
 
-Currently supported languages:
-- **English;**
-- **Ukrainian;**
-- **Russian.**
-
-# How to get started ?
-1. First of all create your own telegram bot, save its api key as an environment variable.
-2. Open create_bot.py file and replace "telegramBot_api" with the name of your environment variable instance.
-3. To interact with the models we need openai api key, go and get it on https://platform.openai.com/ and save as environment variable too.
-4. Then open each file in handlers folder and replace "OPENAI_API_KEY" with your the name of your environment 
-   variable from step 3.
-5. Run your code and use it.
