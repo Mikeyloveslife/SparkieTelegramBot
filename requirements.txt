@@ -1,2 +1,6 @@
 aiogram
 openai
+python-dotenv
+Pillow
+pycoingecko
+qrcode

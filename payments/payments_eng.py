@@ -114,7 +114,7 @@ async def process_in_check_balance(message: Message, state: FSMContext):
   print("IN CHECK BALANCE STATE MA MAN")
   if message.text == '💳\nBuy tokens':
     await buy_tokens(message, state)
-  if message.text == '⬅️':
+  elif message.text == '⬅️':
     await state.finish()
     await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
     

@@ -21,7 +21,7 @@ db = Database('user_settings.db')
 
                     ### MENU HANDLER ###
 from image_generation.image_generation_eng import image_generation_eng
-from payments.payments_eng import check_balance     
+from payments.payments_eng import check_balance, process_in_check_balance     
      
 
           ### CREATE COMPLETION, SUM COMPLETION ###
@@ -326,6 +326,7 @@ def register_handlers_client_ENG(dp : Dispatcher):
   dp.register_message_handler(create_image, state=All_states.in_generate_image)
   dp.register_message_handler(create_image_variation, state=All_states.in_generate_image_variation)
   dp.register_message_handler(check_balance, text="💼\nCheck balance")
+  dp.register_message_handler(process_in_check_balance, state=All_states.in_check_balance)
   
 
 

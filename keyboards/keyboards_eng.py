@@ -68,6 +68,7 @@ check_balance_kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=T
 check_balance_kb.row(return_button ,buy_tokens)
 
 
+
           ### INLINE KEYBOARD FOR "Buy tokens" BUTTON ###
 buy_tokens_kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 buy_tokens_kb.row(return_button, question_button)
@@ -76,8 +77,9 @@ p1 = InlineKeyboardButton(text='Bitcoin', callback_data="bitcoin")
 bitcoin_kb = InlineKeyboardMarkup(row_width=1)
 bitcoin_kb.row(p1)
 
-          ### INLINE KEYBOARD FOR BUY TOKENS/BITCOIN ###
 
+
+          ### INLINE KEYBOARD FOR BUY TOKENS/BITCOIN ###
 p1 = InlineKeyboardButton(text='$2', callback_data="2")
 p2 = InlineKeyboardButton(text='$5', callback_data="5")
 p3 = InlineKeyboardButton(text='$10', callback_data="10")
@@ -89,7 +91,6 @@ payment_plans_kb.row(p1, p2).row(p3, p4).row(p5)
 
 
                 ### CHOOSE LANG KEYBOARD ###
-
 l1 = InlineKeyboardButton(text='🇺🇸 English', callback_data="ENG")
 l2 = InlineKeyboardButton(text='🇺🇦 Українська', callback_data="UKR")
 l3 = InlineKeyboardButton(text='🇷🇺 Русский', callback_data="RU")
@@ -97,14 +98,12 @@ language_kb = InlineKeyboardMarkup(row_width=3)
 language_kb.row(l1, l2, l3)
 
 
+                  ### MODEL KEYBOARD ###
 m1 = InlineKeyboardButton(text='gpt-3.5-turbo', callback_data="gpt-3.5-turbo")
 m2 = InlineKeyboardButton(text='text-davinci-003', callback_data="text-davinci-003")
 model_kb = InlineKeyboardMarkup(row_width=1)
 model_kb.row(m1).row(m2)
 
-
-
-                
 
                 ### IMAGE GENERATION KEYBOARDS ###
 i1 = InlineKeyboardButton(text='Generate image', callback_data='generate image')
