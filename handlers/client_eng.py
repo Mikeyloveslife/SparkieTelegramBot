@@ -48,12 +48,14 @@ def sum_completion(chat_history, new_prompt, new_response):
 #@dp.message_handler(Text(equals='Chat with Sparkie'))
 async def chat_with_sparkie_eng(message: Message):
   user_id = message.from_user.id
+  user_lang = db.get_param(user_id, ("language",))
+  print(user_lang)
   model = db.get_param(user_id, ("model",))
   if model == 'gpt-3.5-turbo':
-    await All_states.in_gpt_turbo.set()
+    await All_states.in_gpt_turbo_eng.set()
     reply_markup = in_gpt_turbo_kb
   elif model == 'text-davinci-003':
-    await All_states.in_text_davinci_003.set()
+    await All_states.in_text_davinci_003_eng.set()
     reply_markup = in_text_davinci_003_kb
   await bot.send_message(user_id, "Hello you can ask me anything you want. Mind the number of tokens you have in balance.", reply_markup=reply_markup)
 
@@ -67,7 +69,7 @@ async def in_gpt_turbo_eng(message: Message, state: FSMContext):
     await state.finish()
     await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
   elif user_message == "🕹\nChoose model":
-    await All_states.in_choose_model.set()
+    await All_states.in_choose_model_eng.set()
     model = db.get_param(user_id, ("model",))
     await bot.send_message(user_id, f"Your current model is {model}.", reply_markup=return_kb)
     await bot.send_message(user_id, "Choose one of the supported models:", reply_markup=model_kb)
@@ -108,10 +110,10 @@ async def in_text_davinci_003_eng(message: Message, state: FSMContext):
     await state.finish()
     await bot.send_message(user_id, "Welcome to the main menu. Please select an option:", reply_markup=menu_kb)
   elif message.text == "⚙️\nModel settings":
-    await All_states.in_model_settings.set()
+    await All_states.in_model_settings_eng.set()
     await bot.send_message(user_id, "Select one of the settings:", reply_markup=model_settings_kb)
   elif message.text == "🕹\nChoose model":
-    await All_states.in_choose_model.set()
+    await All_states.in_choose_model_eng.set()
     model = db.get_param(user_id, ("model",))
     await bot.send_message(user_id, f"Your current model is {model}.", reply_markup=return_kb)
     await bot.send_message(user_id, "Choose one of the supported models:\n\nGPT-3.5 models can understand and generate natural language or code.\n\n1.  gpt-3.5-turbo - Most capable GPT-3.5 model and optimized for chat at 1/10th the cost of text-davinci-003.\n\n2.  text-davinci-003 - Can do any language task and gives control over Maximum length and Temperature used in prompts.", reply_markup=model_kb)
@@ -145,14 +147,14 @@ async def in_text_davinci_003_eng(message: Message, state: FSMContext):
 async def in_prompt_settings_eng(message: Message, state: FSMContext):
   user_id = message.from_user.id
   if message.text == '⬅️':
-    await All_states.in_text_davinci_003.set()
+    await All_states.in_text_davinci_003_eng.set()
     await bot.send_message(user_id, "You can keep chatting.", reply_markup=in_text_davinci_003_kb)
   elif message.text == 'Maximum length':
-    await All_states.in_max_length.set()
+    await All_states.in_max_length_eng.set()
     current_max_length = db.get_param(user_id, ("max_length",))
     await bot.send_message(user_id, f"Maximum length is the maximum number of tokens to generate. One token is roughly 4 characters for normal English text.\nYou can use up to 4097 tokens shared between prompt and completion.\n\nYour current Maximum length is {current_max_length}.\nPlease specify the maximum length you need.", reply_markup=max_length_kb)
   elif message.text == 'Temperature':
-    await All_states.in_temperature.set()
+    await All_states.in_temperature_eng.set()
     current_temperature = db.get_param(user_id, ("temperature",))
     await bot.send_message(user_id, f"Your current Temperature is {current_temperature}.", reply_markup=temperature_replykeyboard)
     await bot.send_message(user_id, "Please enter the desired value:", reply_markup=temperature_inlinekeyboard)
@@ -169,11 +171,11 @@ async def in_max_length_eng(message: Message, state: FSMContext):
       await bot.send_message(user_id, "Maximum length cannot be less than 1.")
     else:
       db.update_param(user_id, ("max_length", max_length))
-      await All_states.in_model_settings.set()
+      await All_states.in_model_settings_eng.set()
       await bot.send_message(user_id, f"Maximum length has been updated to {max_length}.", reply_markup=model_settings_kb)
   except ValueError:
     if message.text == '⬅️':
-      await All_states.in_model_settings.set()
+      await All_states.in_model_settings_eng.set()
       await bot.send_message(user_id, "Select one of the settings", reply_markup=model_settings_kb)
     elif message.text == "�":
       current_max_length = db.get_param(user_id, ("max_length",))
@@ -191,7 +193,7 @@ async def in_temperature_inline_eng(callback_query: CallbackQuery, state: FSMCon
   temperature = float(callback_query.data)
   if 0 <= temperature <= 1:
     db.update_param(user_id, ("temperature", temperature))
-    await All_states.in_model_settings.set()
+    await All_states.in_model_settings_eng.set()
     await bot.send_message(user_id, f"Temperature has been set to {temperature}.", reply_markup=model_settings_kb)
 
     
@@ -203,13 +205,13 @@ async def in_temperature_reply_eng(message: Message, state: FSMContext):
     temperature = float(message.text)
     if 0 <= temperature <= 1:
       db.update_param(user_id, ("temperature", temperature))
-      await All_states.in_model_settings.set()
+      await All_states.in_model_settings_eng.set()
       await bot.send_message(user_id, f"Temperature has been set to {temperature}.", reply_markup=model_settings_kb)
     else:
       raise ValueError
   except ValueError:
     if message.text == "⬅️":
-      await All_states.in_model_settings.set()
+      await All_states.in_model_settings_eng.set()
       await bot.send_message(user_id, "Select one of the settings:", reply_markup=model_settings_kb)
     elif message.text == "�":
       current_temperature = db.get_param(user_id, ("temperature",))
@@ -230,11 +232,11 @@ async def in_choose_model_inline_eng(callback_query: CallbackQuery, state: FSMCo
     # user_lang = db.get_param(user_id, ("language",))
     # print(user_lang, "MIRACLE")
     db.update_param(user_id, ("model", model))
-    await All_states.in_gpt_turbo.set()
+    await All_states.in_gpt_turbo_eng.set()
     reply_markup=in_gpt_turbo_kb
   elif model == 'text-davinci-003':
     db.update_param(user_id, ("model", model))
-    await All_states.in_text_davinci_003.set()
+    await All_states.in_text_davinci_003_eng.set()
     reply_markup=in_text_davinci_003_kb
   await bot.send_message(user_id, f"The model has been changed to {model}. You can keep chatting.", reply_markup=reply_markup)
 
@@ -247,10 +249,10 @@ async def in_choose_model_reply_eng(message: Message, state: FSMContext):
   if message.text == '⬅️':
     if current_model == "gpt-3.5-turbo":
       chat_keyboard = in_gpt_turbo_kb
-      await All_states.in_gpt_turbo.set()
+      await All_states.in_gpt_turbo_eng.set()
     elif current_model == "text-davinci-003":
       chat_keyboard = in_text_davinci_003_kb
-      await All_states.in_text_davinci_003.set()
+      await All_states.in_text_davinci_003_eng.set()
     await bot.send_message(user_id, "Hello you can ask me anything you want. Mind the number of tokens you have in balance.", reply_markup=chat_keyboard)
   elif message.text == '�':
     await bot.send_message(user_id, "GPT-3.5 models can understand and generate natural language or code.\n\n1.  gpt-3.5-turbo - Most capable GPT-3.5 model and optimized for chat at 1/10th the cost of text-davinci-003.\n\n2.  text-davinci-003 - Can do any language task and gives control over Maximum length and Temperature used in prompts.", reply_markup=return_kb)
@@ -258,11 +260,12 @@ async def in_choose_model_reply_eng(message: Message, state: FSMContext):
 
 
                     #### CHOOSE LANGUAGE ###
-@dp.message_handler(text='🌐')
-async def choose_lang_reply(message: Message):
+#@dp.message_handler(text='🌐')
+async def in_choose_lang_reply_eng(message: Message):
+  await All_states.in_choose_lang_eng.set()
   user_id = message.chat.id
   user_lang = db.get_param(user_id, ("language",))
-  
+  print("in_choose_lang_reply", user_lang)
   language_messages = {
     'ENG': ("Please choose your preferred language:", keyboards_eng.language_kb),
     'UKR': ("Будь ласка, оберіть вашу мову:", keyboards_ukr.language_kb),
@@ -278,12 +281,12 @@ async def choose_lang_reply(message: Message):
 
 
               ### PROCESS CHOOSE LANGUAGE ###
-@dp.callback_query_handler(lambda c: c.data in ["ENG", "UKR", "RU"])
-async def choose_lang_inline(callback_query: CallbackQuery):
+#@dp.callback_query_handler(lambda c: c.data in ["ENG", "UKR", "RU"], state = All_states.in_choose_lang_eng)
+async def in_choose_lang_inline_eng(callback_query: CallbackQuery, state: FSMContext):
   # add a user's telegram id to the database and set the token balance to 20000, token limit to 100 and temperature TO 0.5
   user_id = callback_query.from_user.id
   lang = callback_query.data
-  print("BUTTON", lang)
+  print("choose_lang_inline", lang)
   current_lang = db.get_param(user_id, ("language",))
   tokens = 20000
   max_length = 100
@@ -295,16 +298,18 @@ async def choose_lang_inline(callback_query: CallbackQuery):
     'UKR': ("Встановлено українську мову.", f"Ласкаво просимо до родини Sparky! Ми раді вітати вас в нашій спільноті. Як новому користувачу, вам було нараховано {tokens} токенів, щоб випробувати наш продукт. Ми сподіваємося, що вам сподобається використовувати наш сервіс. Дайте нам знати, якщо у вас є якісь питання або відгуки. Натисніть одну з кнопок меню, щоб почати.", keyboards_ukr.menu_kb),
     'RU': ("Русский язык установлен.", f"Добро пожаловать в семью Sparky! Мы рады, что вы присоединились к нашему сообществу. В качестве нового пользователя вам было начислено {tokens} токенов для тестирования нашего продукта. Мы надеемся, что вам понравится использовать наш сервис. Если у вас есть вопросы или отзывы, пожалуйста, сообщите нам. Нажмите одну из кнопок меню, чтобы начать.", keyboards_ru.menu_kb)
   }
-  
-  if lang in language_messages:
-    message_text, welcome_message, reply_markup = language_messages[lang]
 
+  message_text, welcome_message, reply_markup = language_messages[lang]
+  if current_lang is None:
+    db.set_default_user_settings(user_id, tokens, max_length, temperature, model, lang)
+    await bot.send_message(user_id, welcome_message, reply_markup=reply_markup)
+
+  else:
     await bot.send_message(user_id, message_text, reply_markup=reply_markup)
-    if current_lang is None:
-      db.set_default_user_settings(user_id, tokens, max_length, temperature, model)
-      await bot.send_message(user_id, welcome_message, reply_markup=reply_markup)
 
     db.update_param(user_id, ("language", lang))
+    print("Updated language")
+  await state.finish()
 
 
 
@@ -315,14 +320,17 @@ from image_generation.image_generation_eng import create_image, create_image_var
            
 def register_handlers_client_ENG(dp : Dispatcher):
   dp.register_message_handler(chat_with_sparkie_eng, text='💬 Chat with Sparky')
-  dp.register_message_handler(in_gpt_turbo_eng, state=All_states.in_gpt_turbo)
-  dp.register_message_handler(in_text_davinci_003_eng, state=All_states.in_text_davinci_003)
-  dp.register_message_handler(in_prompt_settings_eng, state=All_states.in_model_settings)
-  dp.register_message_handler(in_max_length_eng, state=All_states.in_max_length)
-  dp.register_callback_query_handler(in_temperature_inline_eng, lambda c: c.data in ["0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"], state=All_states.in_temperature)
-  dp.register_message_handler(in_temperature_reply_eng, state=All_states.in_temperature)
-  dp.register_callback_query_handler(in_choose_model_inline_eng, lambda c: c.data in ["gpt-3.5-turbo", "text-davinci-003"], state=All_states.in_choose_model)
-  dp.register_message_handler(in_choose_model_reply_eng, state=All_states.in_choose_model)
+  dp.register_message_handler(in_gpt_turbo_eng, state=All_states.in_gpt_turbo_eng)
+  dp.register_message_handler(in_text_davinci_003_eng, state=All_states.in_text_davinci_003_eng)
+  dp.register_message_handler(in_prompt_settings_eng, state=All_states.in_model_settings_eng)
+  dp.register_message_handler(in_max_length_eng, state=All_states.in_max_length_eng)
+  dp.register_callback_query_handler(in_temperature_inline_eng, lambda c: c.data in ["0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"], state=All_states.in_temperature_eng)
+  dp.register_message_handler(in_temperature_reply_eng, state=All_states.in_temperature_eng)
+  dp.register_callback_query_handler(in_choose_model_inline_eng, lambda c: c.data in ["gpt-3.5-turbo", "text-davinci-003"], state=All_states.in_choose_model_eng)
+  dp.register_message_handler(in_choose_model_reply_eng, state=All_states.in_choose_model_eng)
+  dp.register_message_handler(in_choose_lang_reply_eng, text='🌐')
+  dp.register_callback_query_handler(in_choose_lang_inline_eng, lambda c: c.data in ["ENG", "UKR", "RU"], state = All_states.in_choose_lang_eng)
+  
   dp.register_message_handler(create_image, state=All_states.in_generate_image)
   dp.register_message_handler(create_image_variation, state=All_states.in_generate_image_variation)
   dp.register_message_handler(check_balance, text="💼\nCheck balance")

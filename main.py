@@ -31,9 +31,10 @@ async def process_start(message: Message):
   # Get the user's Telegram ID
   user_id = message.from_user.id
   # Check if the user's Telegram ID is already in the database
-  if db.get_param(user_id, ("user_id",)):
+  user_lang = db.get_param(user_id, ("language",))
+  if user_lang is not None:
     # Get user's language
-    user_lang = db.get_param(user_id, ("language",))
+    print(user_id)
     print(user_lang)
     # Get the user's name 
     user = message.from_user
@@ -54,18 +55,15 @@ async def process_start(message: Message):
     if user_lang in language_messages:
         message_text = language_messages[user_lang]
         reply_markup = keyboards[user_lang]
-    else:
-        message_text = language_messages['ENG']
-        reply_markup = keyboards['ENG']
 
-    await bot.send_message(user_id, message_text, reply_markup=reply_markup)
+        await bot.send_message(user_id, message_text, reply_markup=reply_markup)
   else:
     # NEW USER CHOOSES LANGUAGE
-    await bot.send_message(user_id, "Please choose your preferred language:", reply_markup=keyboards_eng.language_kb)
+    await in_choose_lang_reply_eng(message)
 
 
 ### A SELECTION OF COMMANDS TO WORK REGARDLES STATES ###
-from handlers.client_eng import chat_with_sparkie_eng, check_balance, choose_lang_reply, image_generation_eng
+from handlers.client_eng import chat_with_sparkie_eng, check_balance, in_choose_lang_reply_eng, image_generation_eng
 from aiogram.dispatcher import FSMContext
 
 @dp.message_handler(lambda message: message.text.startswith('/'), state='*')
@@ -74,7 +72,18 @@ async def menu_handler(message: Message, state: FSMContext):
    if message.text == "/start":
      await process_start(message)
    elif message.text == "/menu":
-     await message.answer("Welcome to the main menu. Please select an option:", reply_markup=keyboards_eng.menu_kb)
+     user_id = message.from_user.id
+     user_lang = db.get_param(user_id, ("language",))
+     print("in_menu_handler", user_lang)
+     language_messages = {
+         'ENG': ("Welcome to the main menu. Please select an option:", keyboards_eng.menu_kb),
+         'UKR': ("Ласкаво просимо до головного меню. Будь ласка, оберіть одну з опцій:", keyboards_ukr.menu_kb),
+         'RU': ("Добро пожаловать в главное меню. Пожалуйста, выберите одну из опций:", keyboards_ru.menu_kb)
+     }
+     if user_lang in language_messages:
+       message_text, reply_markup = language_messages[user_lang]
+     
+     await message.answer(message_text, reply_markup=reply_markup)
    elif message.text == "/chat_with_sparky":
      await chat_with_sparkie_eng(message)
    elif message.text == "/image_generation":
@@ -82,9 +91,10 @@ async def menu_handler(message: Message, state: FSMContext):
    elif message.text == "/check_balance":
      await check_balance(message)
    elif message.text == "/language":
-     await choose_lang_reply(message)
+     await in_choose_lang_reply_eng(message)
 
 register_handlers_client_ENG(dp)
+register_handlers_client_RU(dp)
 
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)

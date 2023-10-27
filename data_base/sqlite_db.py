@@ -3,13 +3,14 @@ from sqlite3 import Connection, Error
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 class All_states(StatesGroup):
-  in_gpt_turbo = State()
-  in_text_davinci_003 = State()
-  in_model_settings = State()
-  in_choose_model = State()
-  in_max_length = State()
-  in_temperature = State()
-  in_lang = State()
+  # states in english
+  in_gpt_turbo_eng = State()
+  in_text_davinci_003_eng = State()
+  in_model_settings_eng = State()
+  in_choose_model_eng = State()
+  in_max_length_eng = State()
+  in_temperature_eng = State()
+  in_choose_lang_eng = State()
   # image generation states
   in_image_size = State()
   in_generate_image = State()
@@ -18,6 +19,14 @@ class All_states(StatesGroup):
   in_buy_tokens = State()
   in_check_balance = State()
   in_check_balance_buy_tokens = State()
+  # states in russian
+  in_gpt_turbo_ru = State()
+  in_text_davinci_003_ru = State()
+  in_model_settings_ru = State()
+  in_choose_model_ru = State()
+  in_max_length_ru = State()
+  in_temperature_ru = State()
+  in_choose_lang_ru = State()
 
 class Database:
   def __init__(self, db_path):
@@ -46,13 +55,13 @@ class Database:
 
 
   ### SET DEFAULT USER SETTINGS ###
-  def set_default_user_settings(self, user_id: int, tokens: int, max_length: int, temperature: float, model: str):
+  def set_default_user_settings(self, user_id: int, tokens: int, max_length: int, temperature: float, model: str, language: str):
     conn = self.get_connection()
     if conn is None:
       return
     try:
       cursor = conn.cursor()
-      cursor.execute('''INSERT INTO users(user_id, tokens, max_length, temperature, model) VALUES(?, ?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET tokens = excluded.tokens, max_length = excluded.max_length, temperature = excluded.temperature, model = excluded.model''', (user_id, tokens, max_length, temperature, model))
+      cursor.execute('''INSERT INTO users(user_id, tokens, max_length, temperature, model, language) VALUES(?, ?, ?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET tokens = excluded.tokens, max_length = excluded.max_length, temperature = excluded.temperature, model = excluded.model, language = excluded.language''', (user_id, tokens, max_length, temperature, model, language))
       conn.commit()
     finally:
       self.release_connection(conn)
